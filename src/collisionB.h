@@ -159,11 +159,11 @@ class Collision : public Collision0 {
         } 
     }
     static void showParameter() {
-        const PS::F64 L = 149597870700;
-        const PS::F64 M = 1.9884e30;
+        const PS::F64 L = 14959787070000;
+        const PS::F64 M = 1.9884e33;
         std::cout << std::scientific << std::setprecision(15)
                   << "N_frag        = " << N_frag << std::endl
-                  << "dens_imp      = " << dens << "\t(" << dens*M/(L*L*L) << " kg/m^3)"<< std::endl
+                  << "dens_imp      = " << dens << "\t(" << dens*M/(L*L*L) << " g/cm^3)"<< std::endl
                   << "c_s           = " << c_s << std::endl
                   << "mu_           = " << mu_ << std::endl
                   << "eta_          = " << eta_ << std::endl
@@ -171,11 +171,11 @@ class Collision : public Collision0 {
                   << "eps_t         = " << eps_t << std::endl;
     }
     static void showParameter(std::ofstream & fout) {
-        const PS::F64 L = 149597870700;
-        const PS::F64 M = 1.9884e30;
+        const PS::F64 L = 14959787070000;
+        const PS::F64 M = 1.9884e33;
         fout << std::scientific << std::setprecision(15)
              << "N_frag        = " << N_frag << std::endl
-             << "dens_imp      = " << dens << "\t(" << dens*M/(L*L*L) << " kg/m^3)"<< std::endl
+             << "dens_imp      = " << dens << "\t(" << dens*M/(L*L*L) << " g/cm^3)"<< std::endl
              << "c_s           = " << c_s << std::endl
              << "mu_           = " << mu_ << std::endl
              << "eta_          = " << eta_ << std::endl
@@ -361,6 +361,14 @@ inline PS::S32 Collision::collisionOutcome(std::vector<Tp> & pfrag)
 
         pos_tar_new = pos_tar;
         pos_imp_new = (mass_imp*pos_imp - masspos)/mass_rem;
+#if 1
+        PS::F64vec pos_g_new = (mass_rem*pos_imp_new + mass_tar*pos_tar_new) / (mass_rem+mass_tar);
+        PS::F64vec ximp_new  = pos_imp_new - pos_tar_new;
+        PS::F64    rimp_new  = sqrt(ximp_new*ximp_new);
+        pos_imp_new = pos_g_new + f*(R_tar+R_imp)/rimp_new * mass_tar/(mass_rem+mass_tar) * ximp_new;
+        pos_tar_new = pos_g_new - f*(R_tar+R_imp)/rimp_new * mass_rem/(mass_rem+mass_tar) * ximp_new;
+#endif
+        
         //vel_imp_new = vel_g + mass_imp/(mass_imp - n_frag*mass_frag)*(vel_imp_new_n*e_n + vel_imp_new_t*e_t);
         vel_tar_new = vel_g + vel_tar_new_n*e_n + vel_tar_new_t*e_t;
         vel_imp_new = vel_g + vel_imp_new_n*e_n + vel_imp_new_t*e_t;
