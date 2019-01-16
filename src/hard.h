@@ -38,7 +38,8 @@ public:
     }
     PS::S32 getNumberOfParticleLocal(){
         PS::S32 n = 0;
-        for ( PS::S32 i=0; i<ptcl_multi.size(); i++ ) n += ptcl_multi[i].size();
+        PS::S32 size = ptcl_multi.size();
+        for ( PS::S32 i=0; i<size; i++ ) n += ptcl_multi[i].size();
         n += list_iso.size();
         return n;
     }
@@ -52,8 +53,9 @@ public:
     }
     PS::S32 getNumberOfParticleInLargestClusterLocal(){
         PS::S32 n = 0;
-        for ( PS::S32 i=0; i<ptcl_multi.size(); i++ )
-            if ( n < ptcl_multi[i].size() ) n = ptcl_multi[i].size();
+        PS::S32 size = ptcl_multi.size();
+        for ( PS::S32 i=0; i<size; i++ )
+            if ( n < size ) n = ptcl_multi[i].size();
         return n;
     }
     PS::S32 getNumberOfParticleInLargestClusterGlobal() {
@@ -103,12 +105,14 @@ public:
     }
     
     void showParticleID() const {
-        for ( PS::S32 i=0; i<ptcl_multi.size(); i++ ){
+        PS::S32 size = ptcl_multi.size();
+        for ( PS::S32 i=0; i<size; i++ ){
             bool flag = ptcl_multi.at(i).at(0).inDomain;
             std::cout << "Rank " << PS::Comm::getRank()
                       << " Cluster " << ptcl_multi.at(i).at(0).id_cluster
                       << " (" << flag << "): ";
-            for ( PS::S32 j=0; j<ptcl_multi.at(i).size(); j++ ){
+            PS::S32 sizei = ptcl_multi.at(i).size();
+            for ( PS::S32 j=0; j<sizei; j++ ){
                 std::cout << " " << ptcl_multi.at(i).at(j).id;
                 assert( flag == ptcl_multi.at(i).at(j).inDomain );
             }
@@ -163,7 +167,7 @@ inline PS::S32 HardSystem::makeList(Tpsys & pp,
 {   
     PS::S32 n_ptcl_loc = 0;
     PS::S32 n_cluster_loc = 0;
-    PS::S32 tmp = 0;
+    PS::U32 tmp = 0;
         
     for ( PS::S32 i=0; i<n_pp; i++ ){
         if ( pp[i].neighbor ) {
@@ -225,9 +229,10 @@ inline PS::S32 HardSystem::timeIntegrate(Tpsys & pp,
     
 #pragma omp parallel for reduction(+:n_ptcl_loc) schedule (dynamic)
     for ( PS::S32 ii=0; ii<n_all; ii++ ){
-        if ( ii<list_multi.size() ){
+        PS::S32 size = list_multi.size();
+        if ( ii<size ){
             PS::S32 i = ii;
-            //for ( PS::S32 i=0; i<list_multi.size(); i++ ){
+            //for ( PS::S32 i=0; i<size; i++ ){
             std::map<PS::S32,PS::S32> id2adr;
             PS::S32 n_p = list_multi.at(i).size();
             PS::S32 id_cluster = 0;
@@ -280,9 +285,10 @@ inline PS::S32 HardSystem::timeIntegrate(Tpsys & pp,
                 }
             }
 
-            for ( PS::S32 j=0; j<ptcl_multi[i].size(); j++ ) ptcl_multi[i][j].n_cluster = ptcl_multi[i].size();
+            PS::S32 sizei = ptcl_multi[i].size();
+            for ( PS::S32 j=0; j<sizei; j++ ) ptcl_multi[i][j].n_cluster = ptcl_multi[i].size();
                 
-            for ( PS::S32 j=0; j<ptcl_multi[i].size()-n_frag_tmp; j++ ){
+            for ( PS::S32 j=0; j<sizei-n_frag_tmp; j++ ){
                 std::pair<bool,PS::S32> adr = list_multi.at(i).at(j);
                 if ( adr.first ) {
                     if ( !ptcl_multi[i][j].isDead ) assert ( pp[adr.second].id == ptcl_multi[i][j].id );
@@ -401,12 +407,13 @@ inline PS::S32 HardSystem::addFragment2ParticleSystem(Tpsys & pp,
 
     // Return Fragments ID
     PS::Comm::scatterV(id_frag_list, n_frag_list, frag_recv, id_frag_loc, n_frag);
-    assert( frag_list.size() == n_frag );
+    assert( (PS::S32)(frag_list.size()) == n_frag );
     for ( PS::S32 i=0; i<n_frag; i++ ){
         std::pair<PS::S32, PS::S32> adr = frag_list.at(i);
         
         if ( ptcl_multi[adr.first][adr.second].isMerged ) {
-            for ( PS::S32 j=0; j<list_multi.at(adr.first).size(); j++ ) {
+            PS::S32 sizef = list_multi.at(adr.first).size();
+            for ( PS::S32 j=0; j<sizef; j++ ) {
                 if ( ptcl_multi[adr.first][j].id == ptcl_multi[adr.first][adr.second].id &&
                      j != adr.second ) {
                     std::pair<bool,PS::S32> adr_j = list_multi.at(adr.first).at(j);
@@ -455,10 +462,10 @@ void createNeighborCluster(Tpsys & pp,
 {
     const PS::S32 n_loc = pp.getNumberOfParticleLocal();
     std::vector<PS::S32> out_of_domain_list;
-    assert( n_list.size() == n_loc );
+    assert( (PS::S32)(n_list.size()) == n_loc );
     
     for(PS::S32 i=0; i<n_loc; i++){
-        assert( pp[i].neighbor == n_list[i].size() );
+        assert( pp[i].neighbor == (PS::S32)(n_list[i].size()) );
         id2id_loc[pp[i].id] = i;
         if( pp[i].inDomain == false ) out_of_domain_list.push_back(pp[i].id_local);
     }

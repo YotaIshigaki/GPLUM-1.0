@@ -64,8 +64,9 @@ PS::F64 getvalue(std::string value,
     PS::S32 begin = 0;
     PS::F64 x = 0;
     bool isNumer = true;
-    for ( PS::S32 i=0; i<value.size()+1; i++ ){
-        if ( i == value.size() || value[i] == '*' || value[i] == '/' ){
+    PS::S32 size = value.size();
+    for ( PS::S32 i=0; i<size+1; i++ ){
+        if ( i == size || value[i] == '*' || value[i] == '/' ){
             std::string x_str = value.substr(begin, i-begin);
             
             if ( x_str.size() > 2 && x_str.substr(0, 2) == "2^" ) {

@@ -7,7 +7,8 @@ PS::F64 makeActiveList(Tpsys & pp,
 {
     PS::F64 t_s = 1.e10;
     active_list.clear();
-    for(PS::S32 i=0; i<pp.size(); i++){
+    PS::S32 psize = pp.size();
+    for(PS::S32 i=0; i<psize; i++){
         if ( pp[i].isDead ) continue;
         PS::F64 t_i = pp[i].time + pp[i].dt;
         if ( t_s > t_i ) {
@@ -25,7 +26,8 @@ template <class Tpsys>
 PS::F64 getSystemTime(Tpsys & pp)
 {
     PS::F64 t_s = 1.e10;
-    for(PS::S32 i=0; i<pp.size(); i++){
+    PS::S32 psize = pp.size();
+    for(PS::S32 i=0; i<psize; i++){
         if ( pp[i].isDead ) continue;
         if ( t_s > pp[i].time ) t_s = pp[i].time;
     }
@@ -99,14 +101,15 @@ bool collisionDetermination(Tpsys & pp,
     //    PS::F64 R = r1 / ( f * r2 );
     //    if ( R > 1. ) col_pair = std::make_pair(-1,-1);
     //}
-    
-    for(PS::S32 i=0; i<pp.size(); i++){
+
+    PS::S32 psize = pp.size();
+    for(PS::S32 i=0; i<psize; i++){
         if ( pp[i].isDead ) continue;
         for(PS::S32 j=0; j<pp[i].neighbor; j++){
             PS::S32 pj_id = pp[i].n_hard_list.at(j);
             if ( pp[pj_id].isDead ) continue;
             PS::F64vec dr = pp[i].xp - pp[pj_id].xp;
-            PS::F64vec dv = pp[i].vp - pp[pj_id].vp;
+            //PS::F64vec dv = pp[i].vp - pp[pj_id].vp;
             PS::F64 r1 = sqrt(dr*dr);
             PS::F64 r2 = pp[i].r_planet + pp[pj_id].r_planet;
             PS::F64 R = r1 / ( f * r2 );
@@ -190,8 +193,10 @@ void timeIntegrate_multi(Tpsys & pp,
     for(PS::S32 i=0; i<pp.size(); i++) calcGravity(pp[i], pp);
     PS::F64 e0 = calcEnergyCluster(pp);
 #endif
-    
-    for(PS::S32 i=0; i<pp.size(); i++){
+
+    PS::S32 psize = pp.size();
+    PS::S32 asize = 0;
+    for(PS::S32 i=0; i<psize; i++){
         calcJerk(pp[i], pp);
         pp[i].calcDeltatInitial();
         pp[i].isDead = pp[i].isMerged = false;
@@ -203,7 +208,8 @@ void timeIntegrate_multi(Tpsys & pp,
         time_s = makeActiveList(pp, active_list);
 
         // Predict
-        for ( PS::S32 i=0; i<pp.size(); i++ ) {
+        psize = pp.size();
+        for ( PS::S32 i=0; i<psize; i++ ) {
             pp[i].xp = 0.0;
             pp[i].vp = 0.0;
             t_p = time_s - pp[i].time;
@@ -215,7 +221,7 @@ void timeIntegrate_multi(Tpsys & pp,
         flag_col = collisionDetermination(pp, col_pair, f);
         if ( flag_col ){
             active_list.clear();
-            for(PS::S32 i=0; i<pp.size(); i++){
+            for(PS::S32 i=0; i<psize; i++){
                 pp[i].dt = time_s - pp[i].time;
                 if ( pp[i].isDead ) continue;
                 active_list.push_back(i);
@@ -224,7 +230,8 @@ void timeIntegrate_multi(Tpsys & pp,
 #endif
             
         // Correct
-        for(PS::S32 i=0; i<active_list.size(); i++){
+        asize = active_list.size();
+        for(PS::S32 i=0; i<asize; i++){
             a_id = active_list.at(i);
             
             std::pair<iterator, iterator> range;
@@ -291,7 +298,8 @@ void timeIntegrate_multi(Tpsys & pp,
 #ifdef COLLISION
         if ( flag_col ){
 #ifdef FORDEBUG
-            for(PS::S32 i=0; i<pp.size(); i++) calcGravity(pp[i], pp);
+            psize = pp.size();
+            for(PS::S32 i=0; i<psize; i++) calcGravity(pp[i], pp);
             mergeAccJerk(pp, merge_list);
             PS::F64 ekin0, ephi_d0, ephi_s0;
             PS::F64 e2 = calcEnergyCluster(pp, ekin0, ephi_d0, ephi_s0);
@@ -328,7 +336,8 @@ void timeIntegrate_multi(Tpsys & pp,
             collision_list.push_back(col);
             n_col ++;
 
-            for(PS::S32 i=0; i<pp.size(); i++) calcGravity(pp[i], pp);
+            psize = pp.size();
+            for(PS::S32 i=0; i<psize; i++) calcGravity(pp[i], pp);
             mergeAccJerk(pp, merge_list);
 #ifdef FORDEBUG
             PS::F64 ekin1, ephi_d1, ephi_s1;
@@ -337,7 +346,7 @@ void timeIntegrate_multi(Tpsys & pp,
             PRC(ekin1-ekin0);PRC(ephi_d1-ephi_d0);PRL(ephi_s1-ephi_s0);
 #endif
 
-            for(PS::S32 i=0; i<pp.size(); i++) {
+            for(PS::S32 i=0; i<psize; i++) {
                 if ( !pp[i].isDead ) pp[i].calcDeltatInitial();
                 if ( pp[i].isMerged ){
                     std::pair<iterator, iterator> range = merge_list.equal_range(i);
@@ -353,7 +362,8 @@ void timeIntegrate_multi(Tpsys & pp,
         loop ++;
     }
 
-    for(PS::S32 i=0; i<pp.size(); i++){
+    psize = pp.size();
+    for(PS::S32 i=0; i<psize; i++){
         calcGravity(pp[i], pp);
         assert ( pp[i].time == time_end );
     }

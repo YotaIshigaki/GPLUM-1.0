@@ -124,7 +124,8 @@ void decideExchangeRank(PS::S32 * ex_rank,
         check = true;
        
 #ifdef PARTICLE_SIMULATOR_MPI_PARALLEL
-        for ( PS::S32 i=0; i<connected_rank_list.size(); i++ ){
+        PS::S32 size = connected_rank_list.size();
+        for ( PS::S32 i=0; i<size; i++ ){
             PS::S32 rank = connected_rank_list.at(i);
             if ( rank == myrank ) continue;
             PS::S32 TAG = loop + 10;

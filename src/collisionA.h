@@ -225,7 +225,7 @@ inline void Collision0::setParticle(Tpsys & pp,
         
         pp.push_back(pfrag[i]);
     }
-    if ( n_frag ) assert ( pp.size() == id_c_frag + n_frag );
+    if ( n_frag ) assert ( (PS::S32)(pp.size()) == id_c_frag + n_frag );
 
     //Pos & Vel
     pp[id_c_imp].pos = pos_imp_new;
@@ -592,16 +592,16 @@ inline void Collision0::setNeighbors(Tpsys & pp)
         for ( PS::S32 j=0; j<n_frag; j++ ){
             if ( i != j ) pp[id_f].n_hard_list.push_back(id_c_frag + j);
         }
-        assert ( pp[id_f].neighbor == pp[id_f].n_hard_list.size() );
+        assert ( pp[id_f].neighbor == (PS::S32)(pp[id_f].n_hard_list.size()) );
     }
 
     pp[id_c_imp].neighbor += n_frag;
     for ( PS::S32 i=0; i<n_frag; i++ ){
         pp[id_c_imp].n_hard_list.push_back(id_c_frag + i);
     }
-    assert ( pp[id_c_imp].neighbor == pp[id_c_imp].n_hard_list.size() );
+    assert ( pp[id_c_imp].neighbor == (PS::S32)(pp[id_c_imp].n_hard_list.size()) );
     for ( PS::S32 i=0; i<pp[id_c_imp].neighbor; i++ ){
         PS::S32 id_nei = pp[id_c_imp].n_hard_list.at(i);
-        assert ( pp[id_nei].neighbor == pp[id_nei].n_hard_list.size() );
+        assert ( pp[id_nei].neighbor == (PS::S32)(pp[id_nei].n_hard_list.size()) );
     }
 }

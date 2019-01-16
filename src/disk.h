@@ -52,7 +52,7 @@ public:
             PS::F64 m_in  = 0.;
             PS::F64 m_out = 0.;
             PS::S32 n_in  = 0;
-            PS::S32 n_out = 0;
+            //PS::S32 n_out = 0;
         
             ////////////////////////////////////
             /*   Set Particle Mass & Number   */
@@ -80,7 +80,7 @@ public:
             }
             
             n_in = (PS::S32)round(m_in/(m_in + m_out) * n_init);
-            n_out = n_init - n_in;
+            //n_out = n_init - n_in;
             
             ////////////////////////////////
             /*   Create Particle System   */

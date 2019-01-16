@@ -34,7 +34,7 @@ CFLAGS += -DCHAMBERS
 CFLAGS += -DMONAR
 
 SRC = main_p3t.cpp
-PROGRAM = $(SRC:%.cpp=%.out)
+PROGRAM = plum.out
 HEADER = mathfunc.h kepler.h energy.h particle.h disk.h gravity.h gravity_kernel.hpp collisionA.h collisionB.h hermite.h hard.h read.h time.h func.h
 
 $(PROGRAM): main_p3t.o gravity_kernel.o
